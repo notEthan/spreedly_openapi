@@ -1,0 +1,557 @@
+openapi: 3.0.0
+info:
+  title: Spreedly API
+  description: Spreedly API
+  version: v1
+servers:
+  - url: https://core.spreedly.com/v1
+    description: Spreedly API
+paths:
+  /gateways_options.json:
+    get:
+      # TODO: Note that this request is publicly available and _does not_ require authorization.
+      operationId: gateways_options.list
+      summary: List supported gateways
+      description: |
+        Retrieve a list of all gateways, and their properties, supported by Spreedly. This call can be used to dynamically present a gateway credential form to users or to do any sort of dynamic rendering.
+
+        Note that this request is publicly available and _does not_ require authorization.
+      tags: [gateways]
+      responses:
+        '200':
+          description: List of supported gateways
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateways:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gateway_type:
+                          description: The type (short name) of the gateway. Use this value when provisioning a gateway.
+                          type: string
+                        name:
+                          description: The human readable name of the gateway
+                          type: string
+                        auth_modes:
+                          description: A list of authorization modes for the gateway. An auth mode is basically a list of credentials required for this gateway (some gateways support various ways of entering credentials).
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              auth_mode_type:
+                                type: string
+                              name:
+                                type: string
+                              credentials:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  label:
+                                    type: string
+                                  safe:
+                                    type: boolean
+                                  large:
+                                    type: boolean
+                        characteristics:
+                          description: A list of operations (such as purchase, capture etc…) that the gateway supports
+                          type: array
+                          items:
+                            type: string
+                        payment_methods:
+                          description: A list of payment methods (such as credit_card, apple_pay, google_pay, etc…) that the gateway supports
+                          type: array
+                          items:
+                            type: string
+                        gateway_specific_fields:
+                          description: The list of gateway specific fields that can be specified in supported gateway transactions
+                          type: array
+                          items:
+                            type: string
+                        supported_countries:
+                          description: The list of countries this gateway supports
+                          type: array
+                          items:
+                            type: string
+                        supported_cardtypes:
+                          description: The list of credit card brands this gateway supports
+                          type: array
+                          items:
+                            type: string
+                        regions:
+                          description: The list of geographic regions this gateway supports (determined by the supported_countries)
+                          type: array
+                          items:
+                            type: string
+                        homepage:
+                          type: string
+                        company_name:
+                          type: string
+  /gateways.json:
+    get:
+      operationId: gateways.list
+      summary: List created gateways
+      description: Retrieve an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of all gateways in the environment. This is different from the list of all supported gateways in that this will only return the gateway instances that have been provisioned in the authenticated environment.
+      tags: [gateways]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+      responses:
+        '200':
+          description: List of created gateways
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateways:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/gateway'
+    post:
+      operationId: gateways.create
+      summary: Create gateway
+      description: Create (provision) a gateway to process card data in the authenticated environment. A test gateway is used to [test your integration](https://docs.spreedly.com/guides/testing/) to Spreedly and can only be used with [test payment methods](https://docs.spreedly.com/reference/test-data/). Production gateways process real card data and transactions. Production gateways are created using the credentials required for that gateway, meaning each call is slightly different depending on the gateway’s API requirements.
+      tags: [gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/gateway_update_request'
+      responses:
+        '201':
+          description: Created gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateway:
+                    $ref: '#/components/schemas/gateway'
+  /gateways/{gateway_token}.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    get:
+      operationId: gateways.show
+      summary: Show gateway
+      description: Get a gateway with the given token.
+      tags: [gateways]
+      responses:
+        '200':
+          description: Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateway:
+                    $ref: '#/components/schemas/gateway'
+    put:
+      operationId: gateways.update
+      summary: Update a gateway
+      description: Updating a redacted gateway’s credentials will set its state back to retained, allowing it to be used for transactions.
+      tags: [gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/gateway_update_request'
+      responses:
+        '201':
+          description: Updated gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateway:
+                    $ref: '#/components/schemas/gateway'
+  /gateways/{gateway_token}/retain.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    put:
+      operationId: gateways.retain
+      summary: Retain
+      description: When gateways are created via the API, they are automatically retained. However, gateways created via the unauthenticated API (e.g., from a browser/javascript library) are created in the “cached” state. Only by retaining a cached gateway will it be saved and available for future use.
+      tags: [gateways]
+      responses:
+        '200':
+          description: Retain Gateway transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /gateways/{gateway_token}/redact.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    put:
+      operationId: gateways.redact
+      summary: Redact
+      description: Redact (strip of any sensitive credentials and make inactive) a provisioned gateway.
+      tags: [gateways]
+      responses:
+        '200':
+          description: Redact Gateway transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /gateways/{gateway_token}/transactions.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    get:
+      operationId: gateways.list_transactions
+      summary: Transactions
+      description: Get an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of transactions executed against a specific gateway.
+      tags: [gateways]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+        - name: state
+          description: The transaction state on which to filter the returned list. Can be one of `succeeded`, `failed`, `gateway_processing_failed`, `gateway_processing_result_unknown`.
+          in: query
+          schema:
+            type: string
+            enum:
+              - succeeded
+              - failed
+              - gateway_processing_failed
+              - gateway_processing_result_unknown
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/transaction'
+  /receivers_options.json:
+    get:
+      # TODO: Note that this request is publicly available and _does not_ require authorization.
+      operationId: receivers_options.list
+      summary: List supported receivers
+      description: |
+        Retrieve a list of all payment method distribution receivers, and their properties, supported by Spreedly.
+
+        Note that this request is publicly available and _does not_ require authorization.
+      tags: [receivers]
+      responses:
+        '200':
+          description: List of supported receivers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  receivers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/receiver_option'
+  /receivers.json:
+    get:
+      operationId: receivers.list
+      summary: List created receivers
+      description: Retrieve an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of all receivers in the authenticated environment.
+      tags: [receivers]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+      responses:
+        '200':
+          description: List of created receivers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  receivers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/receiver'
+    post:
+      operationId: receivers.create
+      summary: Create receiver
+      description: Create a receiver for use in [payment method distribution](https://docs.spreedly.com/guides/payment-method-distribution/).
+      tags: [receivers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/receiver_create_request'
+      responses:
+        '201':
+          description: Created receiver
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateway:
+                    $ref: '#/components/schemas/receiver'
+  /receivers/{receiver_token}.json:
+    parameters:
+      - $ref: '#/components/parameters/receiver_token'
+    get:
+      operationId: receivers.show
+      summary: Show receiver
+      description: Get a receiver with the given token.
+      tags: [receivers]
+      responses:
+        '200':
+          description: Receiver
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  receiver:
+                    $ref: '#/components/schemas/receiver'
+    put:
+      operationId: receivers.update
+      summary: Update receiver
+      description: Update a receiver with new credentials.
+      tags: [receivers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receiver:
+                  type: object
+                  properties:
+                    credentials:
+                      $ref: '#/components/schemas/receiver_credentials'
+                  required:
+                    - credentials
+      responses:
+        '200':
+          description: Update Payment Method Receiver transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /receivers/{receiver_token}/redact.json:
+    parameters:
+      - $ref: '#/components/parameters/receiver_token'
+    put:
+      operationId: receivers.redact
+      summary: Redact receiver
+      description: Redact (strip of any sensitive credentials and make inactive) a receiver.
+      tags: [receivers]
+      responses:
+        '200':
+          description: Redact Payment Method Receiver transaction
+          content:
+            application/json:
+              schema:
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+components:
+  parameters:
+    gateway_token:
+      name: gateway_token
+      description: The token of the gateway to execute against
+      in: path
+      required: true
+      schema:
+        type: string
+    receiver_token:
+      name: receiver_token
+      description: The token of the receiver at Spreedly
+      in: path
+      required: true
+      schema:
+        type: string
+    order:
+      name: order
+      description: The order of the returned list. Default is `asc`, which returns the oldest records first. To list newer records first, use `desc`.
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+    since_token:
+      name: since_token
+      description: The token of the item to start from (e.g., the last token received in the previous list if iterating through records)
+      in: query
+      required: false
+      schema:
+        type: string
+  schemas:
+    transaction:
+      type: object
+      description: Every action performed against the Spreedly API is captured as a transaction. Transactions can represent local actions, such as storing a payment method, or an external action, such as performing a purchase against a gateway.
+      properties:
+        token:
+          type: string
+          description: The token uniquely identifying this transaction at Spreedly
+        created_at: {}
+        updated_at: {}
+        succeeded:
+          type: boolean
+          description: "`true` if the transaction request was successfully executed, `false` otherwise"
+        transaction_type: {}
+        retained:
+          type: boolean
+          description: if the payment method was set to be automatically retained on creation
+        state: {}
+        message_key: {}
+        message:
+          type: string
+          description: A human-readable string indicating the result of the transaction
+        gateway_transaction_id:
+          description: The id of the transaction _at the gateway_. To be used when corresponding with the gateway or reconciling transactions.
+        retain_on_success:
+          description: If the payment method was set to be retained on successful completion of the transaction. To determine if the payment method was actually retained, see the `payment_method/storage_state` field.
+        payment_method_added:
+          description: If the payment method was added as part of this transaction (i.e. a direct pass-in of the payment information) vs. using an already tokenized payment method
+        response:
+          description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
+        gateway:
+          $ref: '#/components/schemas/gateway'
+        receiver:
+          $ref: '#/components/schemas/receiver'
+        payment_method: {}
+    gateway:
+      type: object
+      properties:
+        token:
+          description: The token identifying the provisioned gateway at Spreedly
+          type: string
+        name:
+          description: The human readable name of the gateway
+          type: string
+        gateway_type:
+          description: The type (short name) of the gateway. Use this value when provisioning a gateway.
+          type: string
+        state:
+          description: The storage state of the gateway (retained, redacted, etc…)
+          type: string
+        redacted:
+          description: If this gateway is redacted or not
+          type: boolean
+        credentials:
+          description: The non-sensitive credentials used for this gateway
+          type: array
+          items: {}
+        characteristics:
+          description: A list of operations (such as purchase, capture etc…) that the gateway supports
+          type: array
+          items:
+            type: string
+        payment_methods:
+          description: A list of payment methods (such as credit_card, apple_pay, google_pay, etc…) that the gateway supports
+          type: array
+          items:
+            type: string
+        gateway_specific_fields:
+          description: The list of gateway specific fields that can be specified in supported gateway transactions
+          type: array
+          items:
+            type: string
+    gateway_update_request:
+      type: object
+      properties:
+        gateway:
+          type: object
+          properties:
+            gateway_type:
+              description: The type of gateway, e.g., `test` for a [test gateway](https://docs.spreedly.com/payment-gateways/test/) or `stripe`, `braintree`, etc…. You can find the list of supported gateways and their respective gateway types [on this page](https://docs.spreedly.com/reference/supported-gateways/)
+              type: string
+            description:
+              description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
+          required: [gateway_type]
+          additionalProperties:
+            description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
+    receiver_option:
+      type: object
+      properties:
+        name:
+          description: The human readable name of the receiver
+        receiver_type:
+          description: The type (short name) of the receiver. Use this value when provisioning a receiver.
+        hostnames:
+          description: The urls used to interact with the receiver
+        company_name:
+          description: The name of the company providing the receiver
+    receiver_create_request:
+      type: object
+      properties:
+        receiver:
+          type: object
+          properties:
+            receiver_type:
+              description: The type of receiver to provision. Can be `test` for a test receiver, or any one of the other supported production receiver types.
+            hostnames:
+              description: "Whitelist of hosts that receiver can send payments to. Supports a comma seperated list of hostnames if multiple are required. Hostnames should include the protocol and domain, but not the path, e.g., `http://testing.receiver.com`. Production receivers can omit hostnames as their values are hard-coded. Note: only required for `test` receivers"
+              example: "sftp://testing.receiver.com"
+            credentials:
+              $ref: '#/components/schemas/receiver_credentials'
+            protocol:
+              description: "a hash of protocol values, currently only used for the SFTP protocol. e.g. `sftp://user:password@127.0.0.0`. Note: required for SFTP receivers"
+              type: object
+              properties:
+                user:
+                  description: The user value.
+                password:
+                  description: The password value.
+          required:
+            - receiver_type
+    receiver_credentials:
+      description: Sensitive values that should be securely stored and made available to the request template at time of delivery
+      type: object
+      properties:
+        name:
+          description: The name of the credential. This will be the name of the variable in the delivery request template.
+        value:
+          description: The value of the credential. This will be the value substituted in for the credential variable in the delivery request template.
+        safe:
+          description: Set to `true` if the credential is not a sensitive value (e.g., a user name). Otherwise it is assumed to be a sensitive value and will not echoed back in API responses.
+          type: boolean
+          default: false
+    receiver:
+      type: object
+      properties:
+        company_name:
+          description: The name of the company providing the receiver
+        token:
+          description: The token uniquely identifying this receiver at Spreedly
+        receiver_type:
+          description: The type of receiver
+        hostnames:
+          description: The whitelist of hostnames to which payment methods can be delivered
+        state:
+          description: The storage state of the payment method. Can be one of `retained` or `redacted`. By default, receivers are created in the `retained` state and must be explicitly redacted if they are no longer required.
+          type: string
+          enum:
+            - retained
+            - redacted
+        credentials:
+          description: One or more name/value pairs used to authenticate with the receiver. Only credentials marked as safe will have their values echoed.
+        protocol_user:
+          description: The user value used to authenticate with the SFTP receiver.
