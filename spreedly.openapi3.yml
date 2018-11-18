@@ -488,6 +488,56 @@ paths:
                 properties:
                   transaction:
                     $ref: '#/components/schemas/transaction'
+    get:
+      operationId: payment_methods.list
+      summary: List
+      description: Retrieve an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of all retained payment methods in the authenticated environment.
+      tags: [payment_methods]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+        - name: metadata
+          description: A metadata key/value pair represented as a hash (e.g. `metadata[key]=value`).
+          in: query
+          schema: {}
+          # TODO specify serialization
+        - name: count
+          description: The number of payment methods to return. By default returns 20, maximum allowed is 100.
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of payment methods
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_methods:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/payment_method'
+  /payment_methods/{payment_method_token}.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    get:
+      operationId: payment_methods.show
+      summary: Show payment method
+      description: Get a payment method with the given token.
+      tags: [payment_methods]
+      responses:
+        '200':
+          description: Payment method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_method:
+                    $ref: '#/components/schemas/payment_method'
 components:
   securitySchemes:
     http_basic:
@@ -508,6 +558,13 @@ components:
     receiver_token:
       name: receiver_token
       description: The token of the receiver at Spreedly
+      in: path
+      required: true
+      schema:
+        type: string
+    payment_method_token:
+      name: payment_method_token
+      description: The token of the payment_method at Spreedly
       in: path
       required: true
       schema:
