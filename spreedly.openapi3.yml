@@ -538,6 +538,96 @@ paths:
                 properties:
                   payment_method:
                     $ref: '#/components/schemas/payment_method'
+    put:
+      operationId: payment_methods.update
+      summary: Update payment method
+      description: Update a payment method’s non-sensitive attributes.
+      tags: [payment_methods]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_method:
+                  type: object
+                  properties:
+                    allow_blank_name:
+                      description: "`true` if this payment method should skip the name validation requirement (credit card only)"
+                      type: boolean
+                    allow_expired_date:
+                      description: "`true` if this payment method should skip the expired date validation requirement (credit card only)"
+                      type: boolean
+                    allow_blank_date:
+                      description: "`true` if this payment method should skip the expiration date validation requirement"
+                      type: boolean
+                    eligible_for_card_updater:
+                      description: "`true` if this payment method should be included in Account Updater"
+                      type: boolean
+                    metadata:
+                      description: "metadata key-value pairs (limit 25). Keys are limited to 50 characters. Values are limited to 500 characters and cannot contain compounding data types"
+                      type: object
+                  additionalProperties:
+                    description: One or more non-sensitive attributes to update. Non-sensitive attributes are attributes excluding card numbers, verification values (CVV), bank account numbers etc…
+      responses:
+        '200':
+          description: Payment method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_method:
+                    $ref: '#/components/schemas/payment_method'
+  /payment_methods/{payment_method_token}/metadata.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    delete:
+      operationId: payment_methods.delete_metadata
+      summary: Delete metadata
+      description: Remove key value pairs from a payment method’s metadata.
+      tags: [payment_methods]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  description: An array of metadata key whose key/value pairs will be deleted. If a metadata key does not already exist, it will be ignored.
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Payment method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_method:
+                    $ref: '#/components/schemas/payment_method'
+  /payment_methods/{payment_method_token}/retain.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    put:
+      operationId: payment_methods.retain
+      summary: Retain payment method
+      description: Retain (keep *in the Spreedly vault* for future use) a payment method.
+      tags: [payment_methods]
+      responses:
+        '200':
+          description: Retain Payment Method transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
 components:
   securitySchemes:
     http_basic:
