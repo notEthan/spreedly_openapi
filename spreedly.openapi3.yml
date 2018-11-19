@@ -978,67 +978,22 @@ paths:
               type: object
               properties:
                 transaction:
-                  type: object
-                  required:
-                    - amount
-                    - currency_code
-                  properties:
-                    payment_method_token:
-                      description: The token of the payment method to use. Required if the purchase uses a tokenized payment method.
-                    credit_card:
-                      $ref: '#/components/schemas/pass_in_credit_card'
-                    bank_account:
-                      $ref: '#/components/schemas/pass_in_bank_account'
-                    android_pay:
-                      $ref: '#/components/schemas/pass_in_android_pay'
-                    google_pay:
-                      $ref: '#/components/schemas/pass_in_google_pay'
-                    apple_pay:
-                      $ref: '#/components/schemas/pass_in_apple_pay'
-                    amount:
-                      description: The amount to request, as an integer. E.g., `1000` for $10.00.
-                      type: integer
-                    currency_code:
-                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
-                    order_id:
-                      description: The merchant specified order id. If not provided, the Spreedly transaction token will be used.
-                    description:
-                      description: A human readable description of the transaction which will be passed to the gateway if it’s supported
-                    retain_on_success:
-                      description: If the card is verified, retain it so it can be used for future transactions
-                    ip:
-                      description: The IP address of the end-user customer
-                    email:
-                      description: Override the customer email address associated with the payment method for this transaction
-                    shipping_address:
-                      description: Override the customer shipping address associated with the payment method for this transaction
-                      type: object
+                  allOf:
+                    - $ref: '#/components/schemas/purchase_transaction_request'
+                    - type: object
                       properties:
-                        name:
-                          description: Customer’s name in the shipping address
-                        address1:
-                          description: Customer’s shipping address, line 1
-                        address2:
-                          description: Customer’s shipping address, line 2
-                        city:
-                          description: Customer’s shipping city
-                        state:
-                          description: Customer’s shipping state/province
-                        zip:
-                          description: Customer’s shipping zip
-                        country:
-                          description: Customer’s shipping country
-                        phone:
-                          description: Customer’s shipping phone
-                    allow_blank_name:
-                      description: "`true` if this payment method should skip the name validation requirement"
-                      type: boolean
-                    allow_expired_date:
-                      description: "`true` if this payment method should skip the expired date validation requirement"
-                      type: boolean
-                    allow_blank_date:
-                      description: "`true` if this payment method should skip the expiration date validation requirement"
-                      type: boolean
+                        payment_method_token:
+                          description: The token of the payment method to use. Required if the purchase uses a tokenized payment method.
+                        credit_card:
+                          $ref: '#/components/schemas/pass_in_credit_card'
+                        bank_account:
+                          $ref: '#/components/schemas/pass_in_bank_account'
+                        android_pay:
+                          $ref: '#/components/schemas/pass_in_android_pay'
+                        google_pay:
+                          $ref: '#/components/schemas/pass_in_google_pay'
+                        apple_pay:
+                          $ref: '#/components/schemas/pass_in_apple_pay'
       responses:
         '200':
           description: Purchase Transaction
@@ -1508,6 +1463,56 @@ components:
                 "publicKeyHash": "/4UKqrtx7AmlRvLatYt9LDt64IYo+G9eaqqS6LFOAdI="
         test_card_number:
           description: Apple Pay does not provide a way to create a test payment token. To mark this as a test Apple Pay payment method, specify a [test card number](https://docs.spreedly.com/reference/test-data/#credit-cards) in this field. Doing so will prevent this payment method from being used against a production gateway, while still verifying the submitted Apple Pay payment data.
+    purchase_transaction_request:
+      type: object
+      required:
+        - amount
+        - currency_code
+      properties:
+        amount:
+          description: The amount to request, as an integer. E.g., `1000` for $10.00.
+          type: integer
+        currency_code:
+          description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+        order_id:
+          description: The merchant specified order id. If not provided, the Spreedly transaction token will be used.
+        description:
+          description: A human readable description of the transaction which will be passed to the gateway if it’s supported
+        retain_on_success:
+          description: If the card is verified, retain it so it can be used for future transactions
+        ip:
+          description: The IP address of the end-user customer
+        email:
+          description: Override the customer email address associated with the payment method for this transaction
+        shipping_address:
+          description: Override the customer shipping address associated with the payment method for this transaction
+          type: object
+          properties:
+            name:
+              description: Customer’s name in the shipping address
+            address1:
+              description: Customer’s shipping address, line 1
+            address2:
+              description: Customer’s shipping address, line 2
+            city:
+              description: Customer’s shipping city
+            state:
+              description: Customer’s shipping state/province
+            zip:
+              description: Customer’s shipping zip
+            country:
+              description: Customer’s shipping country
+            phone:
+              description: Customer’s shipping phone
+        allow_blank_name:
+          description: "`true` if this payment method should skip the name validation requirement"
+          type: boolean
+        allow_expired_date:
+          description: "`true` if this payment method should skip the expired date validation requirement"
+          type: boolean
+        allow_blank_date:
+          description: "`true` if this payment method should skip the expiration date validation requirement"
+          type: boolean
     certificate:
       type: object
       properties:
