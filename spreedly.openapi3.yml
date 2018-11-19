@@ -841,9 +841,15 @@ components:
           description: The JSON serialized [paymentData](https://developers.google.com/pay/api/web/guides/resources/payment-data-cryptography#payment-method-token-structure)
           type: object
           properties:
-            signature: {}
-            protocolVersion: {}
-            signedMessage: {}
+            signature:
+              description: Verifies that the message came from Google. Base64-encoded. Created using ECDSA.
+              type: string
+            protocolVersion:
+              description: Identifies the encryption/signing scheme under which the message was created. Allows the protocol to evolve over time, if needed. If it's not set, assume `ECv0`.
+              type: string
+            signedMessage:
+              description: A serialized JSON string containing the `encryptedMessage`, `ephemeralPublicKey` and `tag`. Serialized to simplify the signature verification process.
+              type: string
           example:
             "signature": "MEUCIA6SGVRwhOyeYRkeDUUNwB/kGtyfQAlOsg7NZydT17u/AiEA48BhWGQEF1EbEU0J+m8eSK3rTfhok9QqpiFVbME+Ky0="
             "protocolVersion": "ECv1"
