@@ -1033,6 +1033,74 @@ paths:
                   transaction:
                     $ref: '#/components/schemas/transaction'
 
+  /gateways/{gateway_token}/authorize.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    post:
+      operationId: gateways.authorize
+      summary: Authorize
+      description: |
+        Authorize a payment method to be charged a specific amount at the target gateway. No funds are taken with an authorize – a follow-up [capture](https://docs.spreedly.com/reference/api/v1/?json#capture) transaction is required to actually move the funds.
+
+        The referenced gateway must exist in the environment whose environment key is being used to authenticate the API call.
+
+
+        Tokenized payment method: Authorize a _tokenized_ payment method (already stored in the Spreedly environment) to be charged a specific amount.
+
+        The `payment_method_token` field of the transaction request is required.
+
+
+        Pass-in credit card: Pass a credit card payment method directly in to the authorize request. If the card is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `credit_card` field of the transaction request is required.
+
+
+        Pass-in Android Pay: Pass an Android Pay payment method directly in to the authorize request. If the Android Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `android_pay` field of the transaction request is required.
+
+
+        Pass-in Google Pay: Pass a Google Pay payment method directly in to the authorize request. If the Google Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `google_pay` field of the transaction request is required.
+
+
+        Pass-in Apple Pay: Pass an Apple Pay payment method directly in to the authorize request. If the Apple Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `apple_pay` field of the transaction request is required.
+      tags: [gateways, transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  allOf:
+                    - $ref: '#/components/schemas/purchase_transaction_request'
+                    - type: object
+                      properties:
+                        payment_method_token:
+                          description: The token of the payment method to use. Required if the authorization uses a tokenized payment method.
+                        credit_card:
+                          $ref: '#/components/schemas/pass_in_credit_card'
+                        android_pay:
+                          $ref: '#/components/schemas/pass_in_android_pay'
+                        google_pay:
+                          $ref: '#/components/schemas/pass_in_google_pay'
+                        apple_pay:
+                          $ref: '#/components/schemas/pass_in_apple_pay'
+      responses:
+        '200':
+          description: Authorize Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
 components:
   securitySchemes:
     http_basic:
