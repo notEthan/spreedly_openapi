@@ -1005,6 +1005,34 @@ paths:
                   transaction:
                     $ref: '#/components/schemas/transaction'
 
+  /transactions/{transaction_token}/purchase.json:
+    parameters:
+      - $ref: '#/components/parameters/transaction_token'
+    post:
+      operationId: transactions.purchase
+      summary: Reference purchase
+      description: Execute a purchase using the payment method [utilized in a previous transaction](https://docs.spreedly.com/guides/using-payment-methods/#reference-purchases).
+      tags: [gateways, transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  $ref: '#/components/schemas/purchase_transaction_request'
+      responses:
+        '200':
+          description: Purchase Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+
 components:
   securitySchemes:
     http_basic:
