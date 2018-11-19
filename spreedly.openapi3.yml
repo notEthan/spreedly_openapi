@@ -13,6 +13,8 @@ tags:
   description: Payment Method Receivers
 - name: payment_methods
   description: Payment Methods
+- name: certificates
+  description: Certificates
 security:
 - http_basic: []
 
@@ -753,6 +755,27 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/transaction'
+  /certificates.json:
+    get:
+      operationId: certificates.list
+      summary: List certificates
+      description: Retrieve an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of all certificates in the authenticated environment.
+      tags: [certificates]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+      responses:
+        '200':
+          description: List of certificates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  certificates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/certificate'
 
 components:
   securitySchemes:
@@ -1199,3 +1222,33 @@ components:
                 "publicKeyHash": "/4UKqrtx7AmlRvLatYt9LDt64IYo+G9eaqqS6LFOAdI="
         test_card_number:
           description: Apple Pay does not provide a way to create a test payment token. To mark this as a test Apple Pay payment method, specify a [test card number](https://docs.spreedly.com/reference/test-data/#credit-cards) in this field. Doing so will prevent this payment method from being used against a production gateway, while still verifying the submitted Apple Pay payment data.
+    certificate:
+      type: object
+      properties:
+        token: {}
+        created_at: {}
+        updated_at: {}
+        algorithm:
+          description: The encryption algorithm used to create the key pair
+        cn:
+          description: The certificate common name
+        o:
+          description: The organization
+        ou:
+          description: The organization unit
+        c:
+          description: The country
+        st:
+          description: The state
+        l:
+          description: The locality or city
+        email_address:
+          description: The email address
+        public_key:
+          description: PEM-formatted public key value
+        public_key_hash:
+          description: The base64 encoded, SHA256 hash, of the public key
+        csr:
+          description: PEM formatted certificate signing request (CSR)
+        pem:
+          description: The signed certificate in PEM format, if it has been set on this certificate
