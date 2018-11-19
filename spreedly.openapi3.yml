@@ -776,6 +776,53 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/certificate'
+    post:
+      operationId: certificates.create
+      summary: Create certificate
+      description: |
+        Create a new SSL keypair and certificate signing request (CSR).
+
+        Since Spreedly is not a certificate authority we cannot issue trusted certificates. Instead, it is intended that you will get the certificate signed by your certificate authority (or sign it yourself) and update the certificate record at Spreedly with the final and signed cert.
+      tags: [certificates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificate:
+                  type: object
+                  required:
+                    - algorithm
+                    - cn
+                  properties:
+                    algorithm:
+                      description: The encryption algorithm to use when creating the key pair. Currently, the only supported option is `ec-prime256v1` representing the X9.62/SECG curve over a 256 bit prime field.
+                    cn:
+                      description: The certificate common name
+                    o:
+                      description: The organization
+                    ou:
+                      description: The organization unit
+                    c:
+                      description: The country
+                    st:
+                      description: The state
+                    l:
+                      description: The locality or city
+                    email_address:
+                      description: The email address
+      responses:
+        '201':
+          description: Created Certificate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  certificate:
+                    $ref: '#/components/schemas/certificate'
 
 components:
   securitySchemes:
@@ -1245,10 +1292,10 @@ components:
         email_address:
           description: The email address
         public_key:
-          description: PEM-formatted public key value
+          description: PEM-formatted public key of the certificate
         public_key_hash:
           description: The base64 encoded, SHA256 hash, of the public key
         csr:
           description: PEM formatted certificate signing request (CSR)
         pem:
-          description: The signed certificate in PEM format, if it has been set on this certificate
+          description: The signed certificate in PEM format, if it has been set on this certificate. This value will be empty on creation.
