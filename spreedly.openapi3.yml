@@ -628,6 +628,132 @@ paths:
                 properties:
                   transaction:
                     $ref: '#/components/schemas/transaction'
+  /gateways/{gateway_token}/store.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    put:
+      operationId: gateways.store
+      summary: Store payment method
+      description: |
+        Tokenize a payment method *at the gateway*.
+
+        This transaction copies the payment method information from the Spreedly vault [to the gateway’s vault](https://docs.spreedly.com/guides/third-party-vaulting/) and creates a new Spreedly payment method to represent the gateway’s version. The reference to the payment method at the gateway is called a `ThirdPartyToken` and is a separate payment method from the original payment method. It is up to you to manage the lifecycle of these linked payment methods – Spreedly does not keep them in sync in any way.
+
+        The `ThirdPartyToken` is locked to the gateway where the card is stored; it cannot be used at another gateway. If you’d like a card to be used at multiple gateways, you’ll need to [retain the card in the Spreedly vault](https://docs.spreedly.com/basics/purchase/#retain).
+      tags: [payment_methods, gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  required:
+                    - payment_method_token
+                  properties:
+                    payment_method_token:
+                      description: The token of the payment method to copy to the gateway
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars. Some gateways may need this for a store call but most do not.
+      responses:
+        '201':
+          description: Store transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /payment_methods/{payment_method_token}/redact.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    put:
+      operationId: payment_methods.redact
+      summary: Redact payment method
+      description: Redact (strip of any sensitive credentials and make inactive) a payment method.
+      tags: [payment_methods]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  properties:
+                    remove_from_gateway:
+                      description: If the payment method is also stored at the gateway (e.g., for [third party vaulting](https://docs.spreedly.com/guides/third-party-vaulting) or [offsite authorizations](https://docs.spreedly.com/guides/offsite-payments#recurring-charges)), include the token of the gateway here and it will be removed from the gateway as well as being redacted from Spreedly. This element is optional and, if not needed, the request body can be empty.
+      responses:
+        '200':
+          description: Redact Payment Method transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /payment_methods/{payment_method_token}/recache.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    post:
+      operationId: payment_methods.recache
+      summary: Recache
+      description: Update a credit card’s verification value (CVV) so the card can be transacted against.
+      tags: [payment_methods]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_method:
+                  type: object
+                  properties:
+                    credit_card:
+                      type: object
+                      properties:
+                        verification_value:
+                          description: The verification value (CVV/CVC) of the card
+      responses:
+        '201':
+          description: Store transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /payment_methods/{payment_method_token}/transactions.json:
+    parameters:
+      - $ref: '#/components/parameters/payment_method_token'
+    get:
+      operationId: payment_methods.list_transactions
+      summary: Transactions
+      description: Get an [ordered and paginated](https://docs.spreedly.com/reference/api/v1/?json#order-and-pagination) list of transactions executed against a specific payment method.
+      tags: [payment_methods]
+      parameters:
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/since_token'
+      responses:
+        '200':
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/transaction'
+
 components:
   securitySchemes:
     http_basic:
@@ -728,6 +854,7 @@ components:
           description: If the payment method was set to be retained on successful completion of the transaction. To determine if the payment method was actually retained, see the `payment_method/storage_state` field.
         payment_method_added:
           description: If the payment method was added as part of this transaction (i.e. a direct pass-in of the payment information) vs. using an already tokenized payment method
+        on_test_gateway: {}
         response:
           description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
         gateway:
@@ -735,6 +862,9 @@ components:
         receiver:
           $ref: '#/components/schemas/receiver'
         payment_method:
+          $ref: '#/components/schemas/payment_method'
+        basis_payment_method:
+          #description: The payment method _vaulted at Spreedly_ that was copied to the gateway as part of this transaction
           $ref: '#/components/schemas/payment_method'
     gateway:
       type: object
@@ -868,6 +998,8 @@ components:
           additionalProperties: {}
         storage_state:
           description: The [storage state](https://docs.spreedly.com/reference/terminology/#storage-state) of the payment method
+        redacted:
+          description: If the payment method is now redacted
         test:
           description: "`true` if this payment method is a test payment method and cannot be used against real gateways or receivers"
         payment_method_type:
