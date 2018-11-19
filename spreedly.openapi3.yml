@@ -6,10 +6,12 @@ info:
 servers:
   - url: https://core.spreedly.com/v1
     description: Spreedly API
+security:
+- http_basic: []
+
 paths:
   /gateways_options.json:
     get:
-      # TODO: Note that this request is publicly available and _does not_ require authorization.
       operationId: gateways_options.list
       summary: List supported gateways
       description: |
@@ -17,6 +19,7 @@ paths:
 
         Note that this request is publicly available and _does not_ require authorization.
       tags: [gateways]
+      security: []
       responses:
         '200':
           description: List of supported gateways
@@ -243,7 +246,6 @@ paths:
                       $ref: '#/components/schemas/transaction'
   /receivers_options.json:
     get:
-      # TODO: Note that this request is publicly available and _does not_ require authorization.
       operationId: receivers_options.list
       summary: List supported receivers
       description: |
@@ -251,6 +253,7 @@ paths:
 
         Note that this request is publicly available and _does not_ require authorization.
       tags: [receivers]
+      security: []
       responses:
         '200':
           description: List of supported receivers
@@ -370,6 +373,14 @@ paths:
                   transaction:
                     $ref: '#/components/schemas/transaction'
 components:
+  securitySchemes:
+    http_basic:
+      type: http
+      scheme: basic
+      description: |
+        Unless otherwise noted, all calls to the Spreedly API use [HTTP basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) over HTTPS.
+
+        Use the [environment key](https://docs.spreedly.com/basics/credentials/#environment-key) of the Spreedly environment you wish to execute against as the HTTP basic user, and one of your organization’s [access secrets](https://docs.spreedly.com/basics/credentials/#access-secret) as the HTTP basic password.
   parameters:
     gateway_token:
       name: gateway_token
