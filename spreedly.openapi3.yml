@@ -931,6 +931,125 @@ paths:
           description: Text formatted representation of the communication between Spreedly and the external service.
           content: {}
 
+  /gateways/{gateway_token}/purchase.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    post:
+      operationId: gateways.purchase
+      summary: Purchase
+      description: |
+        Charge a payment method a specific amount at the target gateway.
+
+
+        Tokenized payment method: Charge a _tokenized_ payment method (already stored in the Spreedly environment) the specified amount. The payment method can be of any type (credit card, bank account, Apple Pay, etc…), as long as it exists in the specified environment.
+
+        The `payment_method_token` field of the transaction request is required.
+
+
+        Pass-in credit card: Pass a credit card payment method directly in to the purchase request. If the card is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `credit_card` field of the transaction request is required.
+
+
+        Pass-in bank account/eCheck: Pass a bank account/eCheck payment method directly in to the purchase request. If the bank account is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `bank_account` field of the transaction request is required.
+
+
+        Pass-in Android Pay: Pass an Android Pay payment method directly in to the purchase request. If the Android Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `android_pay` field of the transaction request is required.
+
+
+        Pass-in Google Pay: Pass a Google Pay payment method directly in to the purchase request. If the Google Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `google_pay` field of the transaction request is required.
+
+
+        Pass-in Apple Pay: Pass an Apple Pay payment method directly in to the purchase request. If the Apple Pay data is valid, it will automatically be tokenized at Spreedly before sending to the gateway.
+
+        The `apple_pay` field of the transaction request is required.
+      tags: [gateways, transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  required:
+                    - amount
+                    - currency_code
+                  properties:
+                    payment_method_token:
+                      description: The token of the payment method to use. Required if the purchase uses a tokenized payment method.
+                    credit_card:
+                      $ref: '#/components/schemas/pass_in_credit_card'
+                    bank_account:
+                      $ref: '#/components/schemas/pass_in_bank_account'
+                    android_pay:
+                      $ref: '#/components/schemas/pass_in_android_pay'
+                    google_pay:
+                      $ref: '#/components/schemas/pass_in_google_pay'
+                    apple_pay:
+                      $ref: '#/components/schemas/pass_in_apple_pay'
+                    amount:
+                      description: The amount to request, as an integer. E.g., `1000` for $10.00.
+                      type: integer
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+                    order_id:
+                      description: The merchant specified order id. If not provided, the Spreedly transaction token will be used.
+                    description:
+                      description: A human readable description of the transaction which will be passed to the gateway if it’s supported
+                    retain_on_success:
+                      description: If the card is verified, retain it so it can be used for future transactions
+                    ip:
+                      description: The IP address of the end-user customer
+                    email:
+                      description: Override the customer email address associated with the payment method for this transaction
+                    shipping_address:
+                      description: Override the customer shipping address associated with the payment method for this transaction
+                      type: object
+                      properties:
+                        name:
+                          description: Customer’s name in the shipping address
+                        address1:
+                          description: Customer’s shipping address, line 1
+                        address2:
+                          description: Customer’s shipping address, line 2
+                        city:
+                          description: Customer’s shipping city
+                        state:
+                          description: Customer’s shipping state/province
+                        zip:
+                          description: Customer’s shipping zip
+                        country:
+                          description: Customer’s shipping country
+                        phone:
+                          description: Customer’s shipping phone
+                    allow_blank_name:
+                      description: "`true` if this payment method should skip the name validation requirement"
+                      type: boolean
+                    allow_expired_date:
+                      description: "`true` if this payment method should skip the expired date validation requirement"
+                      type: boolean
+                    allow_blank_date:
+                      description: "`true` if this payment method should skip the expiration date validation requirement"
+                      type: boolean
+      responses:
+        '200':
+          description: Purchase Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+
 components:
   securitySchemes:
     http_basic:
