@@ -6,6 +6,13 @@ info:
 servers:
   - url: https://core.spreedly.com/v1
     description: Spreedly API
+tags:
+- name: gateways
+  description: Gateways
+- name: receivers
+  description: Payment Method Receivers
+- name: payment_methods
+  description: Payment Methods
 security:
 - http_basic: []
 
