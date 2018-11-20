@@ -1387,18 +1387,27 @@ components:
         created_at: {}
         updated_at: {}
         succeeded:
-          type: boolean
-          description: "`true` if the transaction request was successfully executed, `false` otherwise"
+          # TODO: unify
+          anyOf:
+            - description: "`true` if the transaction request was successfully executed, `false` otherwise"
+              type: boolean
+            - description: Shows if the transaction completed with a non error status. While the transaction is pending, this value will be false.
+              type: boolean
         transaction_type:
           description: The type of transaction, e.g., `Authorization`, `Capture`, `Credit`
         retained:
           type: boolean
           description: if the payment method was set to be automatically retained on creation
-        state: {}
+        state:
+          description: The state of this transaction. The state will be “pending” until the transaction has completed processing. Once processed, the state can be either “succeeded” or “failed”
         message_key: {}
         message:
-          type: string
-          description: A human-readable string indicating the result of the transaction
+          # TODO: unify
+          anyOf:
+            - description: A human-readable string indicating the result of the transaction
+              type: string
+            - description: A brief description of the results of the transaction
+              type: string
         gateway_transaction_id:
           description: The id of the transaction _at the gateway_. To be used when corresponding with the gateway or reconciling transactions.
         retain_on_success:
@@ -1407,7 +1416,28 @@ components:
           description: If the payment method was added as part of this transaction (i.e. a direct pass-in of the payment information) vs. using an already tokenized payment method
         on_test_gateway: {}
         response:
-          description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
+          # TODO: unify
+          anyOf:
+            - description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
+            - description: The raw response status, header and body returned from the receiver. Parse these values to retrieve relevant response fields.
+              type: object
+              properties:
+                status:
+                  description: The status code returned by the receiver.
+                headers:
+                  description: The headers, as delivered exactly to the receiver.
+                body:
+                  description: The raw body delivered to the receiver, with account numbers and other personal information redacted.
+            - description: The response status returned from the receiver. The response is `null` while the transaction is pending.
+              type: object
+              properties:
+                status: {}
+        payment_methods_submitted:
+          description: The payment method tokens in the original export request
+        payment_methods_included:
+          description: The payment method tokens included in the export to the receiver. This value is `null` while the transaction is pending. Once the transaction is processed, this value will be an array of payment method tokens.
+        payment_methods_excluded:
+          description: The payment methods that were not included in the export to the receiver. The value is `null` while the transaction is pending. Once the transaction is processed, this value will be a hash with key/value pairs. The keys are payment method tokens, the values are the reason the payment method was not included in the export to the receiver.
         gateway:
           $ref: '#/components/schemas/gateway'
         receiver:
