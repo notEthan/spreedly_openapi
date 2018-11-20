@@ -1101,6 +1101,197 @@ paths:
                 properties:
                   transaction:
                     $ref: '#/components/schemas/transaction'
+
+  /transactions/{transaction_token}/capture.json:
+    parameters:
+      - $ref: '#/components/parameters/transaction_token'
+    post:
+      operationId: transactions.capture
+      summary: Capture
+      description: |
+        Full amount: Capture all funds previously reserved via an [authorize](https://docs.spreedly.com/reference/api/v1/?json#authorize).
+
+        The request body may be omitted, or the `amount` field may be omitted from the request transaction.
+
+        Partial amount: Capture a partial amount from an [authorize](https://docs.spreedly.com/reference/api/v1/?json#authorize) by specifying an `amount`.
+
+        The request body must be present.
+      tags: [transactions]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  properties:
+                    amount:
+                      description: The amount to capture, as an integer. E.g., `1000` for $10.00. If not provided, the full amount of the original authorize will be captured.
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+      responses:
+        '201':
+          description: Capture Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /transactions/{transaction_token}/void.json:
+    parameters:
+      - $ref: '#/components/parameters/transaction_token'
+    post:
+      operationId: transactions.void
+      summary: Void
+      description: |
+        Cancel an `authorization` transaction.
+
+        This API call can also be used to cancel a `capture`/`purchase` transaction that hasn’t yet settled at the merchant account.
+      tags: [transactions]
+      responses:
+        '201':
+          description: Void Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+  /transactions/{transaction_token}/credit.json:
+    parameters:
+      - $ref: '#/components/parameters/transaction_token'
+    post:
+      operationId: transactions.credit
+      summary: Credit (refund)
+      description: |
+        Full amount: Refund the full amount of a purchase.
+
+        The request body may be omitted, or the `amount` field may be omitted from the request transaction.
+
+        Partial amount: Refund a partial amount of a purchase by specifying an `amount`.
+
+        The request body must be present.
+      tags: [transactions]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  properties:
+                    amount:
+                      description: The amount to refund, as an integer. E.g., `1000` for $10.00. If not provided, the full amount of the original purchase will be refunded.
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+      responses:
+        '201':
+          description: Credit Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+
+  /gateways/{gateway_token}/general_credit.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    post:
+      operationId: gateways.general_credit
+      summary: General credit
+      description: |
+        Add funds to a credit card outside the scope of a previous reference transaction. This is different from [credit](https://docs.spreedly.com/reference/api/v1/?json#credit) which refunds money only up to the amount that had been taken during a previous transaction.
+
+        Support for this general credit depends on the gateway.
+      tags: [gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  required:
+                    - payment_method_token
+                    - amount
+                    - currency_code
+                  properties:
+                    payment_method_token:
+                      description: The token of the payment method to use
+                    amount:
+                      description: The amount to request, as an integer. E.g., `1000` for $10.00.
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+                    order_id:
+                      description: The merchant specified order id. If not provided, the Spreedly transaction token will be used.
+                    description:
+                      description: A human readable description of the transaction which will be passed to the gateway if it’s supported
+                    continue_caching:
+                      description: A boolean option to keep the cvv cached for a few minutes. Otherwise cvv is deleted immediately.
+                    ip:
+                      description: The IP address of the end-user customer
+                    email:
+                      description: Override the customer email address associated with the payment method for this transaction
+      responses:
+        '200':
+          description: Purchase Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+
+  /gateways/{gateway_token}/verify.json:
+    parameters:
+      - $ref: '#/components/parameters/gateway_token'
+    post:
+      operationId: gateways.verify
+      summary: Verify
+      description: Determine if a credit card is [chargeable card and available for purchases](https://docs.spreedly.com/guides/using-payment-methods/#verifying-a-card). The `retain_on_success` request parameter will automatically retain the card if it’s successfully verified.
+      tags: [gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - payment_method_token
+              properties:
+                transaction:
+                  properties:
+                    payment_method_token:
+                      description: The token of the payment method to verify
+                    retain_on_success:
+                      description: If the card is verified, retain it so it can be used for future transactions
+                    currency_code:
+                      description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
+                    ip:
+                      description: If the gateway requires a whitelisted IP address
+      responses:
+        '200':
+          description: Purchase Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    $ref: '#/components/schemas/transaction'
+
 components:
   securitySchemes:
     http_basic:
