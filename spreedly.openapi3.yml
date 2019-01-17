@@ -676,6 +676,13 @@ components:
       required: false
       schema:
         type: string
+  responses:
+    errors:
+      description: Errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
   schemas:
     errors:
       type: object
