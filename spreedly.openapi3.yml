@@ -1050,7 +1050,7 @@ paths:
                     currency_code:
                       description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
       responses:
-        '201':
+        '200':
           $ref: '#/components/responses/transaction'
   /transactions/{transaction_token}/void.json:
     parameters:
@@ -1064,7 +1064,7 @@ paths:
         This API call can also be used to cancel a `capture`/`purchase` transaction that hasn’t yet settled at the merchant account.
       tags: [transactions]
       responses:
-        '201':
+        '200':
           $ref: '#/components/responses/transaction'
   /transactions/{transaction_token}/credit.json:
     parameters:
@@ -1096,7 +1096,7 @@ paths:
                     currency_code:
                       description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
       responses:
-        '201':
+        '200':
           $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/general_credit.json:
