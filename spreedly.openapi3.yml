@@ -1066,6 +1066,8 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/transaction'
+        '422':
+          $ref: '#/components/responses/errors'
   /transactions/{transaction_token}/credit.json:
     parameters:
       - $ref: '#/components/parameters/transaction_token'
