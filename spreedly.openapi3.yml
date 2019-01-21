@@ -1394,12 +1394,8 @@ components:
         created_at: {}
         updated_at: {}
         succeeded:
-          # TODO: unify
-          anyOf:
-            - description: "`true` if the transaction request was successfully executed, `false` otherwise"
-              type: boolean
-            - description: Shows if the transaction completed with a non error status. While the transaction is pending, this value will be false.
-              type: boolean
+          description: Shows if the transaction completed with a non error status. While the transaction is pending, this value will be false.
+          type: boolean
         transaction_type:
           description: The type of transaction, e.g., `Authorization`, `Capture`, `Credit`
         retained:
@@ -1409,12 +1405,8 @@ components:
           description: The state of this transaction. The state will be “pending” until the transaction has completed processing. Once processed, the state can be either “succeeded” or “failed”
         message_key: {}
         message:
-          # TODO: unify
-          anyOf:
-            - description: A human-readable string indicating the result of the transaction
-              type: string
-            - description: A brief description of the results of the transaction
-              type: string
+          description: A brief description of the results of the transaction
+          type: string
         gateway_transaction_id:
           description: The id of the transaction _at the gateway_. To be used when corresponding with the gateway or reconciling transactions.
         retain_on_success:
