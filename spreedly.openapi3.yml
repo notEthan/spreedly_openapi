@@ -196,14 +196,7 @@ paths:
       tags: [gateways]
       responses:
         '200':
-          description: Retain Gateway transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /gateways/{gateway_token}/redact.json:
     parameters:
       - $ref: '#/components/parameters/gateway_token'
@@ -214,14 +207,7 @@ paths:
       tags: [gateways]
       responses:
         '200':
-          description: Redact Gateway transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /gateways/{gateway_token}/transactions.json:
     parameters:
       - $ref: '#/components/parameters/gateway_token'
@@ -358,14 +344,7 @@ paths:
                     - credentials
       responses:
         '200':
-          description: Update Payment Method Receiver transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /receivers/{receiver_token}/redact.json:
     parameters:
       - $ref: '#/components/parameters/receiver_token'
@@ -376,13 +355,7 @@ paths:
       tags: [receivers]
       responses:
         '200':
-          description: Redact Payment Method Receiver transaction
-          content:
-            application/json:
-              schema:
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /payment_methods.json:
     post:
       operationId: payment_methods.create
@@ -485,13 +458,7 @@ paths:
                           "some_other_things": "Can be anything really"
       responses:
         '201':
-          description: Add Payment Method transaction
-          content:
-            application/json:
-              schema:
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
     get:
       operationId: payment_methods.list
       summary: List
@@ -624,14 +591,7 @@ paths:
       tags: [payment_methods]
       responses:
         '200':
-          description: Retain Payment Method transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /gateways/{gateway_token}/store.json:
     parameters:
       - $ref: '#/components/parameters/gateway_token'
@@ -663,14 +623,7 @@ paths:
                       description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars. Some gateways may need this for a store call but most do not.
       responses:
         '201':
-          description: Store transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /payment_methods/{payment_method_token}/redact.json:
     parameters:
       - $ref: '#/components/parameters/payment_method_token'
@@ -693,14 +646,7 @@ paths:
                       description: If the payment method is also stored at the gateway (e.g., for [third party vaulting](https://docs.spreedly.com/guides/third-party-vaulting) or [offsite authorizations](https://docs.spreedly.com/guides/offsite-payments#recurring-charges)), include the token of the gateway here and it will be removed from the gateway as well as being redacted from Spreedly. This element is optional and, if not needed, the request body can be empty.
       responses:
         '200':
-          description: Redact Payment Method transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /payment_methods/{payment_method_token}/recache.json:
     parameters:
       - $ref: '#/components/parameters/payment_method_token'
@@ -726,14 +672,7 @@ paths:
                           description: The verification value (CVV/CVC) of the card
       responses:
         '201':
-          description: Store transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /payment_methods/{payment_method_token}/transactions.json:
     parameters:
       - $ref: '#/components/parameters/payment_method_token'
@@ -996,14 +935,7 @@ paths:
                           $ref: '#/components/schemas/pass_in_apple_pay'
       responses:
         '200':
-          description: Purchase Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /transactions/{transaction_token}/purchase.json:
     parameters:
@@ -1024,14 +956,7 @@ paths:
                   $ref: '#/components/schemas/purchase_transaction_request'
       responses:
         '200':
-          description: Purchase Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/authorize.json:
     parameters:
@@ -1093,14 +1018,7 @@ paths:
                           $ref: '#/components/schemas/pass_in_apple_pay'
       responses:
         '200':
-          description: Authorize Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /transactions/{transaction_token}/capture.json:
     parameters:
@@ -1133,14 +1051,7 @@ paths:
                       description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
       responses:
         '201':
-          description: Capture Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /transactions/{transaction_token}/void.json:
     parameters:
       - $ref: '#/components/parameters/transaction_token'
@@ -1154,14 +1065,7 @@ paths:
       tags: [transactions]
       responses:
         '201':
-          description: Void Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /transactions/{transaction_token}/credit.json:
     parameters:
       - $ref: '#/components/parameters/transaction_token'
@@ -1193,14 +1097,7 @@ paths:
                       description: The currency of the funds, as [ISO 4217 alpha currency codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes), e.g., `USD` for US dollars.
       responses:
         '201':
-          description: Credit Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/general_credit.json:
     parameters:
@@ -1245,14 +1142,7 @@ paths:
                       description: Override the customer email address associated with the payment method for this transaction
       responses:
         '200':
-          description: Purchase Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/verify.json:
     parameters:
@@ -1283,14 +1173,7 @@ paths:
                       description: If the gateway requires a whitelisted IP address
       responses:
         '200':
-          description: Purchase Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
   /receivers/{receiver_token}/deliver.json:
     parameters:
@@ -1331,14 +1214,7 @@ paths:
                       default: false
       responses:
         '200':
-          description: Deliver Payment Method Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
   /receivers/{receiver_token}/export.json:
     parameters:
       - $ref: '#/components/parameters/receiver_token'
@@ -1391,14 +1267,7 @@ paths:
                       description: The url where Spreedly will attempt delivery of transaction results. Transaction results are posted in JSON format.
       responses:
         '200':
-          description: Export Payment Methods Transaction
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transaction:
-                    $ref: '#/components/schemas/transaction'
+          $ref: '#/components/responses/transaction'
 
 components:
   securitySchemes:
@@ -1467,6 +1336,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+    transaction:
+      description: Transaction
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - transaction
+            properties:
+              transaction:
+                $ref: '#/components/schemas/transaction'
+
   schemas:
     errors:
       type: object
