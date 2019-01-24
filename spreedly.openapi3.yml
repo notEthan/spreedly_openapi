@@ -1341,12 +1341,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - transaction
-            properties:
-              transaction:
-                $ref: '#/components/schemas/transaction'
+            $ref: '#/components/schemas/transaction_wrapper'
 
   schemas:
     errors:
@@ -1366,6 +1361,13 @@ components:
                 type: string
               message:
                 type: string
+    transaction_wrapper:
+      type: object
+      required:
+        - transaction
+      properties:
+        transaction:
+          $ref: '#/components/schemas/transaction'
     transaction:
       type: object
       description: Every action performed against the Spreedly API is captured as a transaction. Transactions can represent local actions, such as storing a payment method, or an external action, such as performing a purchase against a gateway.
