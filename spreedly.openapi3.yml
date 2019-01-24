@@ -1019,6 +1019,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/transaction'
+        '422':
+          $ref: '#/components/responses/transaction'
 
   /transactions/{transaction_token}/capture.json:
     parameters:
@@ -1052,6 +1054,9 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/transaction'
+        '422':
+          $ref: '#/components/responses/transaction'
+
   /transactions/{transaction_token}/void.json:
     parameters:
       - $ref: '#/components/parameters/transaction_token'
@@ -1100,6 +1105,8 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/transaction'
+        '422':
+          $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/general_credit.json:
     parameters:
@@ -1144,6 +1151,8 @@ paths:
                       description: Override the customer email address associated with the payment method for this transaction
       responses:
         '200':
+          $ref: '#/components/responses/transaction'
+        '422':
           $ref: '#/components/responses/transaction'
 
   /gateways/{gateway_token}/verify.json:
