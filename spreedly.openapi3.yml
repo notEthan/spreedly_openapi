@@ -446,7 +446,14 @@ paths:
                     metadata:
                       description: metadata key-value pairs (limit 25). Keys are limited to 50 characters. Values are limited to 500 characters and cannot contain compounding data types
                       type: object
-                      additionalProperties: {}
+                      additionalProperties: false
+                      patternProperties:
+                        "\\A.{,50}\\z":
+                          oneOf:
+                            - type: string
+                              maxLength: 500
+                            - type: ["null", "boolean", "number", "integer"]
+                      maxProperties: 25
                       example:
                         "key": "string value"
                         "another_key": 123
