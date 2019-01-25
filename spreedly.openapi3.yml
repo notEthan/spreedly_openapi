@@ -740,6 +740,8 @@ paths:
                   properties:
                     algorithm:
                       description: The encryption algorithm to use when creating the key pair. Currently, the only supported option is `ec-prime256v1` representing the X9.62/SECG curve over a 256 bit prime field.
+                      enum:
+                        - ec-prime256v1
                     cn:
                       description: The certificate common name
                     o:
