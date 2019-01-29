@@ -787,7 +787,7 @@ paths:
                     pem:
                       description: The signed certificate in PEM format. Spreedly is not a certificate authority and, thusly, will not sign the certificate for you. It is your responsibility to take the CSR to your certificate authority, and then update the certificate record with the signed cert in PEM format.
       responses:
-        '201':
+        '200':
           description: Updated Certificate
           content:
             application/json:
