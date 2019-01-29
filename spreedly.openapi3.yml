@@ -796,6 +796,9 @@ paths:
                 properties:
                   certificate:
                     $ref: '#/components/schemas/certificate'
+        '422':
+          $ref: '#/components/responses/errors'
+
   /transactions.json:
     get:
       operationId: transactions.list
