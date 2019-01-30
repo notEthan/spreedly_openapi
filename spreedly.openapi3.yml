@@ -729,6 +729,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/certificate'
+        '404':
+          $ref: '#/components/responses/errors'
     post:
       operationId: certificates.create
       summary: Create certificate
