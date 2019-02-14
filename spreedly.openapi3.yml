@@ -580,7 +580,7 @@ paths:
                   items:
                     type: string
       responses:
-        '201':
+        '200':
           description: Payment method
           content:
             application/json:
@@ -589,6 +589,10 @@ paths:
                 properties:
                   payment_method:
                     $ref: '#/components/schemas/payment_method'
+        '404':
+          $ref: '#/components/responses/errors'
+        '422':
+          $ref: '#/components/responses/errors'
   /payment_methods/{payment_method_token}/retain.json:
     parameters:
       - $ref: '#/components/parameters/payment_method_token'
