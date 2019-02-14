@@ -136,7 +136,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/gateway_update_request'
+              $ref: '#/components/schemas/gateway_create_request'
       responses:
         '201':
           description: Created gateway
@@ -452,7 +452,14 @@ paths:
                     metadata:
                       description: metadata key-value pairs (limit 25). Keys are limited to 50 characters. Values are limited to 500 characters and cannot contain compounding data types
                       type: object
-                      additionalProperties: {}
+                      additionalProperties: false
+                      patternProperties:
+                        "\\A.{,50}\\z":
+                          oneOf:
+                            - type: string
+                              maxLength: 500
+                            - type: ["null", "boolean", "number", "integer"]
+                      maxProperties: 25
                       example:
                         "key": "string value"
                         "another_key": 123
@@ -754,6 +761,8 @@ paths:
                   properties:
                     algorithm:
                       description: The encryption algorithm to use when creating the key pair. Currently, the only supported option is `ec-prime256v1` representing the X9.62/SECG curve over a 256 bit prime field.
+                      enum:
+                        - ec-prime256v1
                     cn:
                       description: The certificate common name
                     o:
@@ -1408,12 +1417,8 @@ components:
         created_at: {}
         updated_at: {}
         succeeded:
-          # TODO: unify
-          anyOf:
-            - description: "`true` if the transaction request was successfully executed, `false` otherwise"
-              type: boolean
-            - description: Shows if the transaction completed with a non error status. While the transaction is pending, this value will be false.
-              type: boolean
+          description: Shows if the transaction completed with a non error status. While the transaction is pending, this value will be false.
+          type: boolean
         transaction_type:
           description: The type of transaction, e.g., `Authorization`, `Capture`, `Credit`
         retained:
@@ -1423,12 +1428,8 @@ components:
           description: The state of this transaction. The state will be “pending” until the transaction has completed processing. Once processed, the state can be either “succeeded” or “failed”
         message_key: {}
         message:
-          # TODO: unify
-          anyOf:
-            - description: A human-readable string indicating the result of the transaction
-              type: string
-            - description: A brief description of the results of the transaction
-              type: string
+          description: A brief description of the results of the transaction
+          type: string
         gateway_transaction_id:
           description: The id of the transaction _at the gateway_. To be used when corresponding with the gateway or reconciling transactions.
         retain_on_success:
@@ -1505,17 +1506,31 @@ components:
           type: array
           items:
             type: string
-    gateway_update_request:
+    gateway_create_request:
       type: object
       properties:
         gateway:
           type: object
+          required:
+            - gateway_type
           properties:
             gateway_type:
               description: The type of gateway, e.g., `test` for a [test gateway](https://docs.spreedly.com/payment-gateways/test/) or `stripe`, `braintree`, etc…. You can find the list of supported gateways and their respective gateway types [on this page](https://docs.spreedly.com/reference/supported-gateways/)
               type: string
             description:
               description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
+          required: [gateway_type]
+          additionalProperties:
+            description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
+    gateway_update_request:
+      type: object
+      properties:
+        gateway:
+          type: object
+          properties:
+            description:
+              description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
+              #type: string TODO confirm
           required: [gateway_type]
           additionalProperties:
             description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
