@@ -472,7 +472,7 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/transaction'
-        '422'
+        '422':
           $ref: '#/components/responses/errors'
     get:
       operationId: payment_methods.list
