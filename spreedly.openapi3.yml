@@ -136,7 +136,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/gateway_update_request'
+              $ref: '#/components/schemas/gateway_create_request'
       responses:
         '201':
           description: Created gateway
@@ -1492,17 +1492,31 @@ components:
           type: array
           items:
             type: string
-    gateway_update_request:
+    gateway_create_request:
       type: object
       properties:
         gateway:
           type: object
+          required:
+            - gateway_type
           properties:
             gateway_type:
               description: The type of gateway, e.g., `test` for a [test gateway](https://docs.spreedly.com/payment-gateways/test/) or `stripe`, `braintree`, etc…. You can find the list of supported gateways and their respective gateway types [on this page](https://docs.spreedly.com/reference/supported-gateways/)
               type: string
             description:
               description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
+          required: [gateway_type]
+          additionalProperties:
+            description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
+    gateway_update_request:
+      type: object
+      properties:
+        gateway:
+          type: object
+          properties:
+            description:
+              description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
+              #type: string TODO confirm
           required: [gateway_type]
           additionalProperties:
             description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
