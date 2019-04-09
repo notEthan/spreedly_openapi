@@ -1430,6 +1430,9 @@ components:
         message:
           description: A brief description of the results of the transaction
           type: string
+        amount:
+          description: The amount of the transaction
+          type: integer
         gateway_transaction_id:
           description: The id of the transaction _at the gateway_. To be used when corresponding with the gateway or reconciling transactions.
         retain_on_success:
