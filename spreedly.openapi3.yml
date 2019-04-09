@@ -1559,7 +1559,9 @@ components:
               description: "Whitelist of hosts that receiver can send payments to. Supports a comma seperated list of hostnames if multiple are required. Hostnames should include the protocol and domain, but not the path, e.g., `http://testing.receiver.com`. Production receivers can omit hostnames as their values are hard-coded. Note: only required for `test` receivers"
               example: "sftp://testing.receiver.com"
             credentials:
-              $ref: '#/components/schemas/receiver_credentials'
+              type: array
+              items:
+                $ref: '#/components/schemas/receiver_credentials'
             protocol:
               description: "a hash of protocol values, currently only used for the SFTP protocol. e.g. `sftp://user:password@127.0.0.0`. Note: required for SFTP receivers"
               type: object
