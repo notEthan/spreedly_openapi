@@ -1522,7 +1522,6 @@ components:
               type: string
             description:
               description: A description of the gateway. Useful to differentiate between multiple gateways of the same type provisioned within your system.
-          required: [gateway_type]
           additionalProperties:
             description: "gateway specific credential field(s): The merchant credentials required for this type of gateway. Stripe has `login`, but your gateway type will most likely require a different set of credentials. Please reference the [gateway’s documentation](https://docs.spreedly.com/reference/supported-gateways/) to determine the appropriate credential(s) to pass here."
     gateway_update_request:
