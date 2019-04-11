@@ -309,7 +309,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  gateway:
+                  receiver:
                     $ref: '#/components/schemas/receiver'
   /receivers/{receiver_token}.json:
     parameters:
@@ -345,7 +345,9 @@ paths:
                   type: object
                   properties:
                     credentials:
-                      $ref: '#/components/schemas/receiver_credentials'
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/receiver_credentials'
                   required:
                     - credentials
       responses:
@@ -1254,6 +1256,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/transaction'
+        '422':
+          $ref: '#/components/responses/transaction'
   /receivers/{receiver_token}/export.json:
     parameters:
       - $ref: '#/components/parameters/receiver_token'
@@ -1603,6 +1607,9 @@ components:
             - redacted
         credentials:
           description: One or more name/value pairs used to authenticate with the receiver. Only credentials marked as safe will have their values echoed.
+          type: array
+          items:
+            $ref: '#/components/schemas/receiver_credentials'
         protocol_user:
           description: The user value used to authenticate with the SFTP receiver.
     payment_method:
