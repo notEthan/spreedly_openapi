@@ -1445,11 +1445,15 @@ components:
           description: If the payment method was added as part of this transaction (i.e. a direct pass-in of the payment information) vs. using an already tokenized payment method
         on_test_gateway: {}
         response:
-          # TODO: unify
+          # TODO: unify?
           anyOf:
-            - description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
-            - description: The raw response status, header and body returned from the receiver. Parse these values to retrieve relevant response fields.
+            - description: |
+                The raw response status, header and body returned from the receiver. Parse these values to retrieve relevant response fields.
+
+                The response is `null` while the transaction is pending.
               type: object
+              required:
+                - status
               properties:
                 status:
                   description: The status code returned by the receiver.
@@ -1457,10 +1461,7 @@ components:
                   description: The headers, as delivered exactly to the receiver.
                 body:
                   description: The raw body delivered to the receiver, with account numbers and other personal information redacted.
-            - description: The response status returned from the receiver. The response is `null` while the transaction is pending.
-              type: object
-              properties:
-                status: {}
+            - description: Unmodified details of the gateway response, including the `message` and `error_code`, if applicable. For failed transactions these fields can help determine the root cause.
         payment_methods_submitted:
           description: The payment method tokens in the original export request
         payment_methods_included:
