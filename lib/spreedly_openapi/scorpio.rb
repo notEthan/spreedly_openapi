@@ -25,4 +25,34 @@ module SpreedlyOpenAPI
   PassInApplePay            = JSI.class_for_schema(Document.components.schemas['pass_in_apple_pay'])
   PurchaseTransactionRequest = JSI.class_for_schema(Document.components.schemas['purchase_transaction_request'])
   Certificate               = JSI.class_for_schema(Document.components.schemas['certificate'])
+
+  # @param request [Scorpio::Request]
+  # @param resource_name [String]
+  # @yield record [Object]
+  # @return [Enumerator, nil]
+  def each_resource(request, resource_name, &block)
+    return to_enum(__method__, request, resource_name) unless block_given?
+
+    next_page = -> (last_page_ur) do
+      records = last_page_ur.response.body_object[resource_name]
+      if records.respond_to?(:to_ary) && !records.empty? && records.last.respond_to?(:to_hash)
+        since_token = records.last['token']
+      end
+      request = last_page_ur.scorpio_request.dup
+      if since_token
+        request.query_params = {'since_token' => since_token}
+        request.run_ur
+      else
+        nil
+      end
+    end
+    request.each_page_ur(next_page: next_page) do |page_ur|
+      records = page_ur.response.body_object[resource_name]
+      if records.respond_to?(:to_ary)
+        records.each(&block)
+      end
+    end
+    nil
+  end
+  extend self
 end
