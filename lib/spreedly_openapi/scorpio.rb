@@ -54,4 +54,43 @@ module SpreedlyOpenAPI
     end
     nil
   end
+
+  class Receiver
+    # @return [SpreedlyOpenAPI::Receiver]
+    def self.find_or_create(receiver_type: , hostnames: , credentials: , **request_config)
+      find(receiver_type: receiver_type, hostnames: hostnames, credentials: credentials, **request_config) ||
+        create(receiver_type: receiver_type, hostnames: hostnames, credentials: credentials, **request_config)
+    end
+
+    # @return [SpreedlyOpenAPI::Receiver]
+    def self.find(receiver_type: , hostnames: , credentials: , **request_config)
+      list = SpreedlyOpenAPI::Document.operations['receivers.list'].build_request(request_config)
+      SpreedlyOpenAPI.each_resource(list, 'receivers').detect do |receiver|
+        credentials_set, receiver_credentials_set = [credentials, receiver.credentials].map do |credentialary|
+          JSI::Typelike.as_json(credentialary).map do |credential|
+            # spreedly stringifies this boolean value
+            credential = credential.merge('safe' => credential['safe'].to_s)
+            credential['safe'] == 'true' ? credential : credential.reject { |k, _| k == 'value' }
+          end.to_set
+        end
+        receiver.receiver_type == receiver_type &&
+          receiver.hostnames == hostnames &&
+          credentials_set == receiver_credentials_set
+      end
+    end
+
+    # @return [SpreedlyOpenAPI::Receiver]
+    def self.create(receiver_type: , hostnames: , credentials: , **request_config)
+      SpreedlyOpenAPI::Document.operations['receivers.create'].run(request_config) do |req|
+        req.body_object = SpreedlyOpenAPI::ReceiverCreateRequest.new({
+          'receiver' => {
+            'receiver_type' => receiver_type,
+            'hostnames' => hostnames,
+            'credentials' => credentials,
+          }
+        })
+        req.body_object.validate!
+      end.receiver
+    end
+  end
 end
