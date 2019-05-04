@@ -92,5 +92,52 @@ module SpreedlyOpenAPI
         req.body_object.validate!
       end.receiver
     end
+
+    # @param payment_method_token [String]
+    # @param scorpio_request [Scorpio::Request]
+    # @return [Object]
+    def deliver(payment_method_token: , scorpio_request: , **request_config)
+      begin
+        delivery = SpreedlyOpenAPI::Document.operations['receivers.deliver'].run(
+          path_params: {'receiver_token' => self.token},
+          body_object: {
+            'delivery' => {
+              'continue_caching' => nil,
+              'payment_method_token' => payment_method_token,
+              'url' => scorpio_request.url.to_s,
+              'request_method' => scorpio_request.http_method.to_s.upcase,
+              'headers' => scorpio_request.headers.map { |k, v| %Q(#{k}: #{v}) }.join("\n"),
+              'body' => scorpio_request.body,
+              'encode_response' => false,
+            }
+          },
+          **request_config,
+        )
+      rescue Scorpio::HTTPErrors::UnprocessableEntity422Error => e
+        if e.response_object.is_a?(SpreedlyOpenAPI::TransactionWrapper)
+          delivery = e.response_object
+        else
+          raise
+        end
+      end
+      # dumb thing to get Net::HTTP to parse the raw headers spreedly gives us
+      headers = begin
+        require 'net/http'
+        response_str = "HTTP 000\r\n" + delivery.transaction.response['headers']
+        net_response = Net::HTTPResponse.read_new(Net::BufferedIO.new(StringIO.new(response_str)))
+        net_response.each_header.map { |k, v| {k => v} }.inject({}, &:update)
+      end
+
+      ur = Scorpio::Ur.new({
+        'response' => {
+          'status' => delivery.transaction.response['status'],
+          'headers' => headers,
+          'body' => delivery.transaction.response['body'],
+        }
+      })
+      ur.scorpio_request = scorpio_request
+      ur.raise_on_http_error
+      ur.response.body_object
+    end
   end
 end
