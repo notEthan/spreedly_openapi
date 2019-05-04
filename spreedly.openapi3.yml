@@ -1587,7 +1587,6 @@ components:
           description: The value of the credential. This will be the value substituted in for the credential variable in the delivery request template.
         safe:
           description: Set to `true` if the credential is not a sensitive value (e.g., a user name). Otherwise it is assumed to be a sensitive value and will not echoed back in API responses.
-          type: boolean
           default: false
     receiver:
       type: object
