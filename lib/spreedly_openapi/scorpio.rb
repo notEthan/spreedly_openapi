@@ -30,7 +30,7 @@ module SpreedlyOpenAPI
   # @param resource_name [String]
   # @yield record [Object]
   # @return [Enumerator, nil]
-  def each_resource(request, resource_name, &block)
+  def self.each_resource(request, resource_name, &block)
     return to_enum(__method__, request, resource_name) unless block_given?
 
     next_page = -> (last_page_ur) do
@@ -54,5 +54,4 @@ module SpreedlyOpenAPI
     end
     nil
   end
-  extend self
 end
